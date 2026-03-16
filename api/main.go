@@ -1,33 +1,31 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
-	"net/http"
-	"os"
 )
 
-func apiHello(w http.ResponseWriter, r *http.Request) {
-	resp := map[string]string{
-		"message": "hello from go api",
-	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
-}
-
 func main() {
-	mux := http.NewServeMux()
+	env := loadEnv()
 
-	mux.HandleFunc("/api/hello", apiHello)
+	stateDB, err := openStateDB(env.stateDBPath)
+	if err != nil {
+		log.Fatalf("open sqlite: %v", err)
+	}
+	defer stateDB.Close()
 
-	// serve frontend if built
-	if _, err := os.Stat("./frontend/dist"); err == nil {
-		fs := http.FileServer(http.Dir("./frontend/dist"))
-		mux.Handle("/", fs)
+	if err := initStateDB(stateDB); err != nil {
+		log.Fatalf("init sqlite schema: %v", err)
 	}
 
-	port := "8080"
+	logsDB, err := openLogsDB(env.pgURL)
+	if err != nil {
+		log.Fatalf("open postgres: %v", err)
+	}
+	defer logsDB.Close()
 
-	log.Printf("server running on %s\n", port)
-	log.Fatal(http.ListenAndServe(":"+port, mux))
+	s := newServer(env, stateDB, logsDB)
+
+	port := defaultPort
+	log.Printf("server running on %s", port)
+	log.Fatal(s.serve(":" + port))
 }

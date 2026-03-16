@@ -1,1 +1,5 @@
 .direnv/
+node_modules/
+frontend/dist/
+minilog_state.db
+minilog_state.db
