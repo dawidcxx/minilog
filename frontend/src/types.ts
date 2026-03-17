@@ -17,3 +17,8 @@ export type ServiceLog = {
   message?: string | null;
   message_json?: unknown;
 };
+
+export type LogsFilterValues = {
+  service: string[];
+  level: string[];
+};

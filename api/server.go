@@ -30,6 +30,7 @@ func (s *server) routes() http.Handler {
 	mux.HandleFunc("/api/logout", s.handleLogout)
 	mux.HandleFunc("/api/me", s.handleMe)
 	mux.HandleFunc("/api/logs", s.handleLogs)
+	mux.HandleFunc("/api/logs/filter-values", s.handleLogFilterValues)
 
 	if _, err := os.Stat(defaultFrontendDistDir); err == nil {
 		mux.Handle("/", frontendHandler(defaultFrontendDistDir))

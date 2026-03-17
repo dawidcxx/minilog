@@ -1,11 +1,12 @@
-import type { BootState, ServiceLog, User } from "../types";
+import type { BootState, LogsFilterValues, ServiceLog, User } from "../types";
 
 type ApiError = { error?: string };
 
 type LogsQuery = {
   service?: string;
   level?: string;
-  q?: string;
+  request_id?: string;
+  resource_id?: string;
   limit?: number;
 };
 
@@ -38,7 +39,8 @@ function toQueryString(query: LogsQuery): string {
   const params = new URLSearchParams();
   if (query.service) params.set("service", query.service);
   if (query.level) params.set("level", query.level);
-  if (query.q) params.set("q", query.q);
+  if (query.request_id) params.set("request_id", query.request_id);
+  if (query.resource_id) params.set("resource_id", query.resource_id);
   if (query.limit) params.set("limit", String(query.limit));
   return params.toString();
 }
@@ -78,5 +80,9 @@ export const api = {
     const path = qs ? `/api/logs?${qs}` : "/api/logs";
     const response = await request<{ logs: ServiceLog[] }>(path);
     return response.logs;
+  },
+
+  async getLogsFilterValues(): Promise<LogsFilterValues> {
+    return request<LogsFilterValues>("/api/logs/filter-values");
   },
 };
