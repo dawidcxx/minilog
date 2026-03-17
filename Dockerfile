@@ -10,7 +10,7 @@ RUN bun run build
 # ---------- go build ----------
 FROM golang:1.25-alpine AS go-builder
 WORKDIR /app
-COPY go.mod ./
+COPY go.mod go.sum ./
 RUN go mod download
 COPY api ./api
 COPY --from=fe-builder /app/frontend/dist ./frontend/dist
