@@ -156,28 +156,7 @@ export function Dashboard(props: { onLogout: () => Promise<void> }) {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-zinc-800/80 bg-zinc-900/70 p-4 backdrop-blur">
-        <div>
-          <p className="text-xs uppercase tracking-wide text-zinc-400">Signed in as</p>
-          <p className="text-sm font-medium text-zinc-100">{user.email}</p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-200 transition hover:bg-zinc-800 disabled:opacity-50"
-            onClick={() => fetchLogs(true)}
-            disabled={refreshing}
-          >
-            {refreshing ? "Refreshing..." : "Refresh"}
-          </button>
-          <button
-            className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-200 transition hover:bg-zinc-800"
-            onClick={() => props.onLogout()}
-          >
-            Logout
-          </button>
-        </div>
-      </div>
+ 
 
       <div className="relative z-20">
         <Card title="Filters">
@@ -237,13 +216,20 @@ export function Dashboard(props: { onLogout: () => Promise<void> }) {
           </label>
           </div>
 
-          <div className="mt-3 flex justify-end">
+          <div className="mt-3 flex justify-end gap-2">
             <button
               className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-200 transition hover:bg-zinc-800"
               onClick={resetFilters}
             >
               Reset filters
             </button>
+             <button
+            className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-200 transition hover:bg-zinc-800 disabled:opacity-50"
+            onClick={() => fetchLogs(true)}
+            disabled={refreshing}
+          >
+            {refreshing ? "Refreshing..." : "Refresh"}
+          </button>
           </div>
         </Card>
       </div>

@@ -24,3 +24,9 @@ Temu grafana. Ready for the brave new AI era (of atrocious RAM prices)
 
 ![Example architecture](example_architecture.drawio.svg)
 
+# Features
+
+- Small Image size, low complexity
+- Display & Filter logs
+- Manage & Invite dashboard local users 
+-  
