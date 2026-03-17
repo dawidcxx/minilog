@@ -15,7 +15,7 @@ export function AuthForm(props: {
   const title = props.mode === "register" ? "Create your admin account" : "Welcome back";
   const subtitle =
     props.mode === "register"
-      ? "This account unlocks the dashboard. Single-user mode is enabled."
+      ? "This creates the root admin account for your workspace."
       : "Sign in to continue to the logs dashboard.";
 
   async function onSubmit(event: React.SyntheticEvent) {

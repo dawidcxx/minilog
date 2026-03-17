@@ -66,7 +66,14 @@ func (s *server) handleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := s.stateDB.ExecContext(r.Context(), `INSERT INTO users (email, password_hash) VALUES (?, ?)`, email, string(hash))
+	username := usernameFromEmail(email)
+	res, err := s.stateDB.ExecContext(
+		r.Context(),
+		`INSERT INTO users (email, username, password_hash, status, is_root) VALUES (?, ?, ?, 'active', 1)`,
+		email,
+		username,
+		string(hash),
+	)
 	if err != nil {
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to register user"})
 		return
@@ -90,7 +97,7 @@ func (s *server) handleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.setSessionCookie(w, token)
-	writeJSON(w, http.StatusCreated, map[string]any{"user": user{ID: userID, Email: email}})
+	writeJSON(w, http.StatusCreated, map[string]any{"user": user{ID: userID, Email: email, Username: username, Status: "active", IsRoot: true}})
 }
 
 func (s *server) handleLogin(w http.ResponseWriter, r *http.Request) {
@@ -117,13 +124,22 @@ func (s *server) handleLogin(w http.ResponseWriter, r *http.Request) {
 
 	var u user
 	var passwordHash string
-	err := s.stateDB.QueryRowContext(r.Context(), `SELECT id, email, password_hash FROM users WHERE email = ? LIMIT 1`, email).Scan(&u.ID, &u.Email, &passwordHash)
+	err := s.stateDB.QueryRowContext(
+		r.Context(),
+		`SELECT id, email, username, status, is_root, password_hash FROM users WHERE email = ? LIMIT 1`,
+		email,
+	).Scan(&u.ID, &u.Email, &u.Username, &u.Status, &u.IsRoot, &passwordHash)
 	if errors.Is(err, sql.ErrNoRows) {
 		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "invalid credentials"})
 		return
 	}
 	if err != nil {
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to login"})
+		return
+	}
+
+	if strings.TrimSpace(strings.ToLower(u.Status)) != "active" {
+		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "account invitation pending"})
 		return
 	}
 
@@ -203,13 +219,13 @@ func (s *server) requireAuth(r *http.Request) (*user, error) {
 	var u user
 	err = s.stateDB.QueryRowContext(
 		r.Context(),
-		`SELECT u.id, u.email
+		`SELECT u.id, u.email, u.username, u.status, u.is_root
 		 FROM sessions s
 		 JOIN users u ON u.id = s.user_id
 		 WHERE s.token = ? AND s.expires_at > CURRENT_TIMESTAMP
 		 LIMIT 1`,
 		cookie.Value,
-	).Scan(&u.ID, &u.Email)
+	).Scan(&u.ID, &u.Email, &u.Username, &u.Status, &u.IsRoot)
 	if err != nil {
 		return nil, err
 	}
@@ -241,4 +257,16 @@ func newSessionToken() (string, error) {
 		return "", err
 	}
 	return hex.EncodeToString(buf), nil
+}
+
+func usernameFromEmail(email string) string {
+	parts := strings.SplitN(email, "@", 2)
+	if len(parts) > 0 {
+		candidate := strings.TrimSpace(parts[0])
+		if candidate != "" {
+			return candidate
+		}
+	}
+
+	return email
 }

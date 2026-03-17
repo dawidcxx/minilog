@@ -29,6 +29,9 @@ func (s *server) routes() http.Handler {
 	mux.HandleFunc("/api/login", s.handleLogin)
 	mux.HandleFunc("/api/logout", s.handleLogout)
 	mux.HandleFunc("/api/me", s.handleMe)
+	mux.HandleFunc("/api/users", s.handleUsers)
+	mux.HandleFunc("/api/users/invite", s.handleCreateUserInvitation)
+	mux.HandleFunc("/api/invitations/", s.handleInvitationByID)
 	mux.HandleFunc("/api/logs", s.handleLogs)
 	mux.HandleFunc("/api/logs/filter-values", s.handleLogFilterValues)
 

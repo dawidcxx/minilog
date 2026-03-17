@@ -20,8 +20,11 @@ type envConfig struct {
 }
 
 type user struct {
-	ID    int64  `json:"id"`
-	Email string `json:"email"`
+	ID       int64  `json:"id"`
+	Email    string `json:"email"`
+	Username string `json:"username"`
+	Status   string `json:"status"`
+	IsRoot   bool   `json:"is_root"`
 }
 
 type serviceLog struct {

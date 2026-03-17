@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^gofmt -w api/\\*\\.go$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

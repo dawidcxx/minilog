@@ -1,1 +1,1 @@
-export { DashboardRoute, InstallRoute, LoginRoute, RegisterRoute } from "../../routes/AppRoutes";
+export { DashboardRoute, InstallRoute, InvitationRegisterRoute, LoginRoute, RegisterRoute, UsersRoute } from "../../routes/AppRoutes";

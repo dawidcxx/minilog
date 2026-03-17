@@ -1,4 +1,12 @@
-import type { BootState, LogsFilterValues, ServiceLog, User } from "../types";
+import type {
+  BootState,
+  CreatedUserInvitation,
+  InvitationDetails,
+  LogsFilterValues,
+  ManagedUser,
+  ServiceLog,
+  User,
+} from "../types";
 
 type ApiError = { error?: string };
 
@@ -84,5 +92,30 @@ export const api = {
 
   async getLogsFilterValues(): Promise<LogsFilterValues> {
     return request<LogsFilterValues>("/api/logs/filter-values");
+  },
+
+  async getUsers(): Promise<ManagedUser[]> {
+    const response = await request<{ users: ManagedUser[] }>("/api/users");
+    return response.users;
+  },
+
+  async inviteUser(email: string): Promise<CreatedUserInvitation> {
+    return request<CreatedUserInvitation>("/api/users/invite", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+  },
+
+  async getInvitation(invitationID: string): Promise<InvitationDetails> {
+    const response = await request<{ invitation: InvitationDetails }>(`/api/invitations/${invitationID}`);
+    return response.invitation;
+  },
+
+  async completeInvitation(invitationID: string, password: string): Promise<User> {
+    const response = await request<{ user: User }>(`/api/invitations/${invitationID}/complete`, {
+      method: "POST",
+      body: JSON.stringify({ password }),
+    });
+    return response.user;
   },
 };

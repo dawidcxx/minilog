@@ -5,6 +5,35 @@ export type BootState = {
 export type User = {
   id: number;
   email: string;
+  username: string;
+  status: string;
+  is_root: boolean;
+};
+
+export type ManagedUser = {
+  id: number;
+  email: string;
+  username: string;
+  status: string;
+  created_at: string;
+  is_root: boolean;
+  invitation_id?: string;
+  invitation_link?: string;
+};
+
+export type CreatedUserInvitation = {
+  user: ManagedUser;
+  invitation: {
+    id: string;
+    link: string;
+  };
+};
+
+export type InvitationDetails = {
+  invitation_id: string;
+  email: string;
+  username: string;
+  status: string;
 };
 
 export type ServiceLog = {

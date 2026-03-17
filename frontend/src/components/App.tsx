@@ -1,12 +1,132 @@
-import { useEffect, useState } from "react";
-import { Redirect, Route, Router } from "wouter";
+import { useEffect, useState, type ReactNode } from "react";
+import { Link, Redirect, Route, Router, useLocation, Switch } from "wouter";
 import { AppStateProvider } from "../context/AppStateContext";
 import { api } from "../lib/api";
 import { DashboardRoute } from "../routes/DashboardRoute";
+import { InvitationRegisterRoute } from "../routes/InvitationRegisterRoute";
 import { InstallRoute } from "../routes/InstallRoute";
 import { LoginRoute } from "../routes/LoginRoute";
 import { RegisterRoute } from "../routes/RegisterRoute";
+import { UsersRoute } from "../routes/UsersRoute";
 import type { BootState, User } from "../types";
+
+type GuardedRouteProps = {
+  path: string;
+  boot: BootState;
+  user: User | null;
+  requiresRoot?: boolean;
+  children: ReactNode;
+};
+
+function AuthedRoute(props: GuardedRouteProps) {
+  return (
+    <Route path={props.path}>
+      {!props.boot.has_user ? (
+        <Redirect to="/install" />
+      ) : !props.user ? (
+        <Redirect to="/login" />
+      ) : props.requiresRoot && !props.user.is_root ? (
+        <Redirect to="/logs" />
+      ) : (
+        props.children
+      )}
+    </Route>
+  );
+}
+
+function AuthenticatedNavigation(props: { user: User; onLogout: () => Promise<void> }) {
+  const [location] = useLocation();
+
+  const links = [{ href: "/logs", label: "Logs" }];
+  if (props.user.is_root) {
+    links.push({ href: "/users", label: "Users" });
+  }
+
+  return (
+    <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-zinc-800/80 bg-zinc-900/70 p-4 backdrop-blur">
+      <div className="flex flex-wrap items-center gap-2">
+        {links.map((entry) => {
+          const active = location === entry.href;
+          return (
+            <Link href={entry.href} key={entry.href}>
+              <span
+                className={[
+                  "cursor-pointer rounded-lg border px-3 py-2 text-sm transition",
+                  active
+                    ? "border-sky-500/60 bg-sky-500/15 text-sky-200"
+                    : "border-zinc-700 text-zinc-300 hover:bg-zinc-800",
+                ].join(" ")}
+              >
+                {entry.label}
+              </span>
+            </Link>
+          );
+        })}
+      </div>
+
+      <div className="flex items-center gap-2">
+        <p className="text-sm text-zinc-400">{props.user.email}</p>
+        <button
+          className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-200 transition hover:bg-zinc-800"
+          onClick={() => props.onLogout()}
+        >
+          Logout
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function AppRoutes(props: {
+  boot: BootState;
+  user: User | null;
+  bootError: string | null;
+  onLogout: () => Promise<void>;
+  onAuthDone: (nextUser: User) => void;
+}) {
+  const [, setLocation] = useLocation();
+
+  function handleAuthDoneAndRedirect(nextUser: User) {
+    props.onAuthDone(nextUser);
+    setLocation("/");
+  }
+
+  return (
+    <Switch>
+      <Route path="/">
+        {!props.boot.has_user ? <Redirect to="/install" /> : !props.user ? <Redirect to="/login" /> : <Redirect to="/logs" />}
+      </Route>
+
+      <Route path="/register/:invitationId">
+        {!props.boot.has_user ? <Redirect to="/install" /> : <InvitationRegisterRoute onDone={handleAuthDoneAndRedirect} />}
+      </Route>
+
+      <Route path="/register">
+        {props.boot.has_user ? <Redirect to="/" /> : <RegisterRoute onDone={handleAuthDoneAndRedirect} bootError={props.bootError} />}
+      </Route>
+
+      <Route path="/install">
+        {props.boot.has_user ? <Redirect to="/" /> : <InstallRoute onDone={handleAuthDoneAndRedirect} bootError={props.bootError} />}
+      </Route>
+
+      <Route path="/login">
+        {!props.boot.has_user ? <Redirect to="/install" /> : props.user ? <Redirect to="/" /> : <LoginRoute onDone={handleAuthDoneAndRedirect} />}
+      </Route>
+
+      <AuthedRoute path="/logs" boot={props.boot} user={props.user}>
+        <DashboardRoute onLogout={props.onLogout} />
+      </AuthedRoute>
+
+      <AuthedRoute path="/users" boot={props.boot} user={props.user} requiresRoot>
+        <UsersRoute />
+      </AuthedRoute>
+
+      <Route>
+        <Redirect to="/" />
+      </Route>
+    </Switch>
+  );
+}
 
 export function App() {
   const [boot, setBoot] = useState<BootState | null>(null);
@@ -77,19 +197,9 @@ export function App() {
             <p className="mt-1 text-sm text-zinc-400">Lightweight PostgreSQL logs dashboard.</p>
           </header>
 
-          <Route path="/">
-            {!boot.has_user ? <Redirect to="/install" /> : !user ? <Redirect to="/login" /> : <DashboardRoute onLogout={handleLogout} />}
-          </Route>
+          {boot.has_user && user && <AuthenticatedNavigation user={user} onLogout={handleLogout} />}
 
-          <Route path="/login">{!boot.has_user ? <Redirect to="/install" /> : user ? <Redirect to="/" /> : <LoginRoute onDone={handleAuthDone} />}</Route>
-
-          <Route path="/register">{boot.has_user ? <Redirect to="/" /> : <RegisterRoute onDone={handleAuthDone} bootError={bootError} />}</Route>
-
-          <Route path="/install">{boot.has_user ? <Redirect to="/" /> : <InstallRoute onDone={handleAuthDone} bootError={bootError} />}</Route>
-
-          <Route path="*">
-            <Redirect to="/" />
-          </Route>
+          <AppRoutes boot={boot} user={user} bootError={bootError} onLogout={handleLogout} onAuthDone={handleAuthDone} />
         </main>
       </Router>
     </AppStateProvider>
