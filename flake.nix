@@ -38,6 +38,12 @@
               echo "watching go api"
               find api -name "*.go" | entr -r go run ./api
             '')
+
+            (pkgs.writeShellScriptBin "test-api" ''
+              set -euo pipefail
+              export DATABASE_URL="postgres://logs:123@localhost/logs"
+              go test -v -count=1 ./api
+            '')
           ];
           shellHook = "";
         };
