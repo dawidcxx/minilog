@@ -6,6 +6,7 @@ import { DashboardRoute } from "../routes/DashboardRoute";
 import { InvitationRegisterRoute } from "../routes/InvitationRegisterRoute";
 import { InstallRoute } from "../routes/InstallRoute";
 import { LoginRoute } from "../routes/LoginRoute";
+import { NotificationsRoute } from "../routes/NotificationsRoute";
 import { RegisterRoute } from "../routes/RegisterRoute";
 import { UsersRoute } from "../routes/UsersRoute";
 import type { BootState, User } from "../types";
@@ -40,6 +41,7 @@ function AuthenticatedNavigation(props: { user: User; onLogout: () => Promise<vo
   const links = [{ href: "/logs", label: "Logs" }];
   if (props.user.is_root) {
     links.push({ href: "/users", label: "Users" });
+    links.push({ href: "/notifications", label: "Notifications" });
   }
 
   return (
@@ -119,6 +121,10 @@ function AppRoutes(props: {
 
       <AuthedRoute path="/users" boot={props.boot} user={props.user} requiresRoot>
         <UsersRoute />
+      </AuthedRoute>
+
+      <AuthedRoute path="/notifications" boot={props.boot} user={props.user} requiresRoot>
+        <NotificationsRoute />
       </AuthedRoute>
 
       <Route>

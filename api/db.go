@@ -57,6 +57,32 @@ CREATE TABLE IF NOT EXISTS user_invitations (
 );
 
 CREATE INDEX IF NOT EXISTS idx_user_invitations_user_id ON user_invitations(user_id);
+
+CREATE TABLE IF NOT EXISTS notification_transports (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	name TEXT NOT NULL UNIQUE,
+	provider TEXT NOT NULL,
+	config_json TEXT NOT NULL DEFAULT '{}',
+	enabled INTEGER NOT NULL DEFAULT 1,
+	created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_notification_transports_provider ON notification_transports(provider);
+
+CREATE TABLE IF NOT EXISTS notification_alerts (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	name TEXT NOT NULL,
+	transport_id INTEGER NOT NULL,
+	match_query TEXT NOT NULL,
+	message TEXT NOT NULL,
+	enabled INTEGER NOT NULL DEFAULT 1,
+	created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	FOREIGN KEY(transport_id) REFERENCES notification_transports(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_notification_alerts_transport_id ON notification_alerts(transport_id);
 `)
 	if err != nil {
 		return err

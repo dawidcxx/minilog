@@ -4,6 +4,8 @@ import type {
   InvitationDetails,
   LogsFilterValues,
   ManagedUser,
+  NotificationAlert,
+  NotificationTransport,
   ServiceLog,
   User,
 } from "../types";
@@ -117,5 +119,89 @@ export const api = {
       body: JSON.stringify({ password }),
     });
     return response.user;
+  },
+
+  async getNotificationTransports(): Promise<NotificationTransport[]> {
+    const response = await request<{ transports: NotificationTransport[] }>("/api/notifications/transports");
+    return response.transports;
+  },
+
+  async createNotificationTransport(payload: {
+    name: string;
+    destination_type: "direct_message" | "guild_text_channel";
+    destination_label?: string;
+    dm_user_id?: string;
+    guild_id?: string;
+    channel_id?: string;
+    bot_token: string;
+    enabled: boolean;
+  }): Promise<NotificationTransport[]> {
+    const response = await request<{ transports: NotificationTransport[] }>("/api/notifications/transports", {
+      method: "POST",
+      body: JSON.stringify({
+        provider: "discord_assistant",
+        ...payload,
+      }),
+    });
+    return response.transports;
+  },
+
+  async updateNotificationTransport(
+    transportID: number,
+    payload: {
+      name: string;
+      destination_type: "direct_message" | "guild_text_channel";
+      destination_label?: string;
+      dm_user_id?: string;
+      guild_id?: string;
+      channel_id?: string;
+      bot_token?: string;
+      enabled: boolean;
+    },
+  ): Promise<NotificationTransport[]> {
+    const response = await request<{ transports: NotificationTransport[] }>(`/api/notifications/transports/${transportID}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        provider: "discord_assistant",
+        ...payload,
+      }),
+    });
+    return response.transports;
+  },
+
+  async getNotificationAlerts(): Promise<NotificationAlert[]> {
+    const response = await request<{ alerts: NotificationAlert[] }>("/api/notifications/alerts");
+    return response.alerts;
+  },
+
+  async createNotificationAlert(payload: {
+    name: string;
+    transport_id: number;
+    match_query: string;
+    message: string;
+    enabled: boolean;
+  }): Promise<NotificationAlert[]> {
+    const response = await request<{ alerts: NotificationAlert[] }>("/api/notifications/alerts", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+    return response.alerts;
+  },
+
+  async updateNotificationAlert(
+    alertID: number,
+    payload: {
+      name: string;
+      transport_id: number;
+      match_query: string;
+      message: string;
+      enabled: boolean;
+    },
+  ): Promise<NotificationAlert[]> {
+    const response = await request<{ alerts: NotificationAlert[] }>(`/api/notifications/alerts/${alertID}`, {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+    return response.alerts;
   },
 };

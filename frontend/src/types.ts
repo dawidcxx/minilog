@@ -51,3 +51,31 @@ export type LogsFilterValues = {
   service: string[];
   level: string[];
 };
+
+export type NotificationTransport = {
+  id: number;
+  name: string;
+  provider: "discord_assistant";
+  destination_type: "direct_message" | "guild_text_channel";
+  destination_label?: string;
+  dm_user_id?: string;
+  guild_id?: string;
+  channel_id?: string;
+  enabled: boolean;
+  has_bot_token: boolean;
+  bot_token_masked?: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type NotificationAlert = {
+  id: number;
+  name: string;
+  transport_id: number;
+  transport_name: string;
+  match_query: string;
+  message: string;
+  enabled: boolean;
+  created_at: string;
+  updated_at: string;
+};

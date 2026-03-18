@@ -34,6 +34,10 @@ func (s *server) routes() http.Handler {
 	mux.HandleFunc("/api/invitations/", s.handleInvitationByID)
 	mux.HandleFunc("/api/logs", s.handleLogs)
 	mux.HandleFunc("/api/logs/filter-values", s.handleLogFilterValues)
+	mux.HandleFunc("/api/notifications/transports", s.handleNotificationTransports)
+	mux.HandleFunc("/api/notifications/transports/", s.handleNotificationTransportByID)
+	mux.HandleFunc("/api/notifications/alerts", s.handleNotificationAlerts)
+	mux.HandleFunc("/api/notifications/alerts/", s.handleNotificationAlertByID)
 
 	if _, err := os.Stat(defaultFrontendDistDir); err == nil {
 		mux.Handle("/", frontendHandler(defaultFrontendDistDir))
