@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"strings"
 
-	_ "github.com/jackc/pgx/v5/stdlib"
+	_ "github.com/lib/pq"
 	_ "modernc.org/sqlite"
 )
 
@@ -13,7 +13,15 @@ func openStateDB(path string) (*sql.DB, error) {
 }
 
 func openLogsDB(pgURL string) (*sql.DB, error) {
-	return sql.Open("pgx", pgURL)
+	if !strings.Contains(pgURL, "sslmode=") {
+		if strings.Contains(pgURL, "?") {
+			pgURL += "&sslmode=disable"
+		} else {
+			pgURL += "?sslmode=disable"
+		}
+	}
+
+	return sql.Open("postgres", pgURL)
 }
 
 func initStateDB(db *sql.DB) error {
