@@ -31,6 +31,7 @@
 
             (pkgs.writeShellScriptBin "dev" ''
               set -e
+              export DATABASE_URL=postgres://logs:123@localhost/logs
 
               echo "starting vite"
               (cd frontend && bun run dev) &
@@ -43,6 +44,11 @@
               set -euo pipefail
               export DATABASE_URL="postgres://logs:123@localhost/logs"
               go test -v -count=1 ./api
+            '')
+
+            (pkgs.writeShellScriptBin "run-checks" ''
+              test-api;
+              cd frontend && bun run typecheck
             '')
           ];
           shellHook = "";
