@@ -28,6 +28,7 @@
             gopls
             bun
             entr # restart go on change
+            sqlite
 
             (pkgs.writeShellScriptBin "dev" ''
               set -e
