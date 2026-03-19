@@ -1,4 +1,5 @@
-import { RegisterRoute } from "./RegisterRoute";
+import { AuthForm } from "../components/AuthForm";
+import { SkeletonLayout } from "../components/layouts/SkeletonLayout";
 import type { User } from "../types";
 
 type InstallRouteProps = {
@@ -7,5 +8,10 @@ type InstallRouteProps = {
 };
 
 export function InstallRoute(props: InstallRouteProps) {
-  return <RegisterRoute onDone={props.onDone} bootError={props.bootError} />;
+  return (
+    <SkeletonLayout>
+      {props.bootError && <p className="mb-4 rounded-lg border border-rose-500/40 bg-rose-500/10 p-3 text-sm text-rose-300">{props.bootError}</p>}
+      <AuthForm mode="register" onDone={props.onDone} />
+    </SkeletonLayout>
+  );
 }

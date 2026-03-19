@@ -7,6 +7,7 @@ export function AuthForm(props: {
   mode: "login" | "register";
   onDone: (user: User) => void;
 }) {
+  const isLogin = props.mode === "login";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -37,15 +38,22 @@ export function AuthForm(props: {
   }
 
   return (
-    <Card title={props.mode === "register" ? "First run setup" : "Authentication"}>
-      <h3 className="text-xl font-semibold text-zinc-100">{title}</h3>
-      <p className="mb-5 mt-1 text-sm text-zinc-400">{subtitle}</p>
+    <Card
+      title={props.mode === "register" ? "First run setup" : "Authentication"}
+      className={isLogin ? "p-4" : undefined}
+    >
+      <h3 className={isLogin ? "text-lg font-semibold text-zinc-100" : "text-xl font-semibold text-zinc-100"}>{title}</h3>
+      <p className={isLogin ? "mb-4 mt-1 text-sm text-zinc-400" : "mb-5 mt-1 text-sm text-zinc-400"}>{subtitle}</p>
 
-      <form className="space-y-3" onSubmit={onSubmit}>
+      <form className={isLogin ? "space-y-2.5" : "space-y-3"} onSubmit={onSubmit}>
         <label className="block text-sm text-zinc-300">
           Email
           <input
-            className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-zinc-100 outline-none transition focus:border-sky-500"
+            className={
+              isLogin
+                ? "mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-zinc-100 outline-none transition focus:border-sky-500"
+                : "mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-zinc-100 outline-none transition focus:border-sky-500"
+            }
             type="email"
             value={email}
             onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
@@ -57,7 +65,11 @@ export function AuthForm(props: {
         <label className="block text-sm text-zinc-300">
           Password
           <input
-            className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-zinc-100 outline-none transition focus:border-sky-500"
+            className={
+              isLogin
+                ? "mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-zinc-100 outline-none transition focus:border-sky-500"
+                : "mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-zinc-100 outline-none transition focus:border-sky-500"
+            }
             type="password"
             value={password}
             onInput={(e) => setPassword((e.target as HTMLInputElement).value)}
@@ -69,7 +81,11 @@ export function AuthForm(props: {
         {error && <p className="text-sm text-rose-400">{error}</p>}
 
         <button
-          className="w-full rounded-lg bg-linear-to-r from-sky-600 to-cyan-600 px-4 py-2.5 font-medium text-white transition hover:from-sky-500 hover:to-cyan-500 disabled:opacity-50"
+          className={
+            isLogin
+              ? "w-full rounded-lg bg-linear-to-r from-sky-600 to-cyan-600 px-4 py-2 font-medium text-white transition hover:from-sky-500 hover:to-cyan-500 disabled:opacity-50"
+              : "w-full rounded-lg bg-linear-to-r from-sky-600 to-cyan-600 px-4 py-2.5 font-medium text-white transition hover:from-sky-500 hover:to-cyan-500 disabled:opacity-50"
+          }
           type="submit"
           disabled={loading}
         >

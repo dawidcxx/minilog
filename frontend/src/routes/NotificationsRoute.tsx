@@ -1,5 +1,12 @@
 import { NotificationsManagement } from "../components/NotificationsManagement";
+import { AppNavigation } from "../components/AppNavigation";
+import { DashboardLayout } from "../components/layouts/DashboardLayout";
+import type { User } from "../types";
 
-export function NotificationsRoute() {
-  return <NotificationsManagement />;
+export function NotificationsRoute(props: { user: User; onLogout: () => Promise<void> }) {
+  return (
+    <DashboardLayout navigation={<AppNavigation user={props.user} onLogout={props.onLogout} />}>
+      <NotificationsManagement />
+    </DashboardLayout>
+  );
 }
