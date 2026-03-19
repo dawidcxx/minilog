@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"os"
 	"strings"
 
 	_ "github.com/lib/pq"
@@ -9,6 +10,12 @@ import (
 )
 
 func openStateDB(path string) (*sql.DB, error) {
+	// Ensure storage directory exists if using default path
+	if strings.HasPrefix(path, "./storage/") {
+		if err := os.MkdirAll("./storage", 0o755); err != nil {
+			return nil, err
+		}
+	}
 	return sql.Open("sqlite", path)
 }
 

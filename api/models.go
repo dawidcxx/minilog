@@ -68,7 +68,7 @@ type notificationAlert struct {
 
 const (
 	defaultPort            = "8080"
-	defaultStateDB         = "./minilog_state.db"
+	defaultStateDB         = "./storage/minilog_state.db"
 	defaultPGURL           = "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
 	defaultCookieName      = "minilog_session"
 	defaultFrontendDistDir = "./frontend/dist"

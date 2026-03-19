@@ -23,4 +23,4 @@ IMPORTANT: Always run checks after non-trivial edits.
 - Backend application state is stored in `minilog_state.db`, which is a SQLite database
 - The backend also connects to a remote timescaleDB (postgres) to retrieve logs, which are the main subject of the application
 - Example schema of expected TimescaleDB is in `contrib/init.sql`
-- You are free trash / introspect the local state DB. For example `sqlite3 minilog_state.db "SELECT datetime('now');"`
+- You are free trash / introspect the local state DB. For example `sqlite3 ./storage/minilog_state.db "SELECT datetime('now');"`
